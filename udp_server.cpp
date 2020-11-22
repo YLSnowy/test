@@ -2,18 +2,15 @@
 #include<string>
 #include<winsock.h>
 #include<thread>
-#include<list>
+#include <fstream> 
+
 #pragma comment(lib,"ws2_32.lib")
 using namespace std;
 
 
+//数据包一共1500个字节，0-4表示序列号，5-9表示确认序列号，10-1494都是数据，1495-1499是校验和
+char message[1500];
 
-//自己定义的数据格式
-struct message
-{
-	char str[4096];      //真正的交流数据
-};
-message m;
 
 //套接字初始化
 void init()
@@ -27,35 +24,52 @@ void init()
 	}
 }
 
-//向客户端发送消息的进程
-void thread_send(SOCKET s_client)
-{
-	cout << "开始聊天吧！" << endl;
-	char buf[4096];
-	while (1)
-	{
-		char reply[4096]; cin >> reply; strcpy(m.str, reply);
 
-		memcpy(buf, &m, 4096);
-		send(s_client, buf, 4096, 0);
+void write(string ch)
+{
+	ofstream outfile;
+	outfile.open("D:\\4.jpg", ios::out | ios::app);
+	outfile << ch;
+}
+
+
+int char_to_num(int start, int end, char* ch)
+{
+	string str;
+	for (int i = start; i <= end; i++)
+	{
+		str += ch[i];
+	}
+	int n = atoi(str.c_str());
+	return n;
+}
+
+
+void num_to_char(int start, int end, int n)
+{
+	string str = to_string(n);
+	int j = 0;
+	for (int i = 0; i < 5; i++)
+	{
+		if (i < 5 - str.length())
+			message[start + i] = '0';
+		else
+		{
+			message[start + i] = str[j];
+			j++;
+		}
 	}
 }
 
-//从客户端接收消息的进程
-void thread_recv(SOCKET s_client)
+int check(char*ch)
 {
-	while (1)
+	int sum = 0;
+	for (int i = 0; i < strlen(ch); i++)
 	{
-		message m1;
-		char buf[4096];
-		memset(buf, 0, sizeof(buf));
-		int ret = recv(s_client, buf, 4096, 0);
-		memcpy(&m1, buf, 4096);
-		if (ret >= 0)
-		{
-			cout << m1.str << endl;
-		}
+		if (i >= 10 && i <= 14) { continue; }
+		sum += abs((int)ch[i]) % 10;
 	}
+	return sum;
 }
 
 
@@ -63,39 +77,66 @@ int main()
 {
 	init();
 
-	SOCKET s_server = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	SOCKADDR_IN ListenAddr;
-	ListenAddr.sin_family = AF_INET;
-	ListenAddr.sin_addr.S_un.S_addr = INADDR_ANY;
-	ListenAddr.sin_port = htons(1234);
 
-	if (bind(s_server, (LPSOCKADDR)&ListenAddr, sizeof(ListenAddr)) == SOCKET_ERROR)
+	SOCKET sockServer = socket(AF_INET, SOCK_DGRAM, 0);
+	SOCKADDR_IN addrServer;
+	addrServer.sin_family = AF_INET;
+	addrServer.sin_port = htons(1234);
+	addrServer.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+	if (bind(sockServer, (SOCKADDR*)&addrServer, sizeof(SOCKADDR)) == SOCKET_ERROR)
 	{
 		cout << "端口绑定失败！" << endl;
 		return -1;
 	}
 
-	listen(s_server, 5);
-	cout << "服务端准备就绪，等待连接请求" << endl;
+	SOCKADDR_IN addrClient;
+	int nAddrlen = sizeof(addrClient);
 
 
-	while (1)
+
+	cout << "receiving" << endl;
+	for (int i = 0;i<1; i++)
 	{
-		SOCKET* s_client = new SOCKET;
-		s_client = (SOCKET*)malloc(sizeof(SOCKET));
-		int SockAddrlen = sizeof(sockaddr);
-		*s_client = accept(s_server, 0, 0);
-		cout << "一个客户端已连接到服务器，socket是：" << *s_client << endl;
+		char recvBuf[1501];
 
+		int ret =recvfrom(sockServer, recvBuf, sizeof(recvBuf), 0, (SOCKADDR*)&addrClient, &nAddrlen);
+		if (ret == 0)
+		{
+			cout << "没有收到" << endl;
+			return -1;
+		}
+		else
+		{
+			recvBuf[1500] = '\0';
 
+			int seq = char_to_num(0, 4, recvBuf);
+			int exp = char_to_num(5, 9, recvBuf);
+			int che = char_to_num(10, 14, recvBuf);
+			if (che != check(recvBuf))
+			{
+				cout << "校验和不对，请重传" << endl;
+				num_to_char(5, 9, seq);
+			}
+			else
+			{
+				num_to_char(5, 9, 1 - seq);
+				cout << "已接收" << seq << "号数据包" << endl;
 
-		thread t1(thread_send, *s_client);
-		thread t2(thread_recv, *s_client);
-		t1.join();
-		t2.join();
-		//CreateThread(NULL, 0, &ServerThread, s_client, 0, NULL);
+				ofstream ofile("D:\\output1.txt", ios::app | ios::binary | ios::out);
+				ofile.write(recvBuf + 15, 1485);
+			}
+
+			num_to_char(0, 4, 1);
+			num_to_char(10, 14, check(message));
+			message[15] = 'a';
+			message[16] = 'c';
+			message[17] = 'k';
+
+			sendto(sockServer, message, 1500, 0, (SOCKADDR*)&addrClient, nAddrlen);
+			cout << message[15] << message[16] << message[17] << endl;
+		}
 	}
-	closesocket(s_server);
+	closesocket(sockServer);
 	WSACleanup();
 	return(0);
 }

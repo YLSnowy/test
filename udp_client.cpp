@@ -1,17 +1,19 @@
-#include<iostream>
-#include<winsock.h>
-#include<ctime>
-#include<thread>
+#include <fstream>
+#include <iostream>
+#include <winsock.h>
+#include <ctime>
+#include <time.h>
+#include <thread>
+#include <string>
+#include <math.h>
+
 
 #pragma comment(lib,"ws2_32.lib")
 using namespace std;
 
-//自己定义的数据格式
-struct message
-{
-    char str[4096];
-};
-message m;
+//数据包一共1500个字节，0-4表示序列号，5-9表示确认序列号，10-14是校验和，15-1499是数据
+char message[1500];
+
 
 void init()
 {
@@ -24,69 +26,124 @@ void init()
     }
 }
 
-//向服务器发送数据的线程
-void thread_send(SOCKET s_server)
-{
-    char buf[4096];
-    while (1)
-    {
-        char reply[4096]; cin >> reply; strcpy(m.str, reply);
 
-        memcpy(buf, &m, 4096);
-        int len = send(s_server, buf, 4096, 0);
-        if (len <= 0)
+int read(int offset)
+{
+    ifstream infile;
+    infile.open("D:\\helloworld.txt", ios::in | ios::binary);
+    infile.seekg(0, infile.end);
+    int length = infile.tellg();
+    if (offset > length) { return 1; }
+    infile.seekg(offset);
+    if (!infile.is_open()) return -1;
+    char buf[1486];
+    infile.read(buf, 1485);
+    buf[1485] = '\0';
+
+    for (int i = 0; i < 1485; i++)
+    {
+        message[15 + i] = buf[i];
+    }
+    return 0;
+}
+
+
+void num_to_char(int start, int end, int n)
+{
+    string str = to_string(n);
+    int j = 0;
+    for (int i = 0; i < 5; i++)
+    {
+        if (i < 5 - str.length())
+            message[start+i] = '0';
+        else
         {
-            cout << "发送信息失败" << endl;
-            closesocket(s_server);
+            message[start+i] = str[j];
+            j++;
         }
     }
 }
 
-//从服务器接收数据的线程
-void thread_recv(SOCKET s_server)
+int check(char* ch)
 {
-    while (1)
+    int sum = 0;
+    for (int i = 0; i < strlen(ch); i++)
     {
-        message m1;
-        char buf[4096];
-        memset(buf, 0, sizeof(buf));
-        int len = recv(s_server, buf, 4096, 0);
-        memcpy(&m1, buf, 4096);
-        if (len > 0)
-        {
-            cout << m1.str << endl;
-        }
+        if (i >= 10 && i <= 14) { continue; }
+        sum += abs((int)ch[i]) % 10;
     }
+    return sum;
 }
 
 int main()
 {
     init();
 
-    SOCKET s_server = socket(AF_INET, SOCK_STREAM, 0);
-    sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_port = htons(1234);
-    server.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+    //read_pic();
+    SOCKET sockClient= socket(AF_INET, SOCK_DGRAM, 0);
+
+    SOCKADDR_IN addrServer;
+    addrServer.sin_family = AF_INET;
+    addrServer.sin_port = htons(1234);
+    addrServer.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+    int SerAddrlen = sizeof(addrServer);
 
 
-    if (connect(s_server, (SOCKADDR*)&server, sizeof(SOCKADDR)) == SOCKET_ERROR)
+
+    for (int i = 0;; i++)
     {
-        cout << "没有正确连接到服务器，连接关闭" << endl;
-        WSACleanup();
-        return 0;
-    }
-    else
-    {
-        cout << "已成功连接到服务器，开始聊天吧" << endl;
+        memset(message, 0, sizeof(message));
+        num_to_char(0, 4, i % 2);
+        num_to_char(5, 9, 1);
+        num_to_char(10, 14, 0);
+        if (read(i * 1485) == 1) { break; }
+        num_to_char(10, 14, check(message));
+
+
+        sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
+        cout << "已发送" << i % 2 << "号数据包" << endl;
+
+
+        char recvBuf[1500];
+        int ret = 0; int flag = 0;
+        clock_t now = clock();
+        while (1)
+        {
+            ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
+            cout << clock() - now << endl;
+            if (clock() - now == 1000)
+            {
+                i--;
+                flag = 1;
+                break;
+            }
+            break;
+        }
+        if (flag == 0)
+        {
+            if (ret == 0)
+            {
+                cout << "error" << endl;
+                return -1;
+            }
+            else
+            {
+                //cout << "已接收" << endl;
+                if (recvBuf[9] == i % 2)
+                {
+                    i--;
+                    continue;
+                }
+                cout << recvBuf[15] << recvBuf[16] << recvBuf[17] << endl;
+            }
+        }
+        else
+        {
+            flag = 0;
+        }
     }
 
-    thread t1(thread_recv, s_server);
-    thread t2(thread_send, s_server);
-    t1.join();
-    t2.join();
-
-    closesocket(s_server);
+    closesocket(sockClient);
     WSACleanup();
     return 0;
 }
