@@ -57,7 +57,7 @@ int read(int offset)
 
     for (int i = 0; i < 1480; i++)
     {
-        message[15 + i] = buf[i];
+        message[20 + i] = buf[i];
     }
     return 0;
 }
@@ -140,10 +140,10 @@ int main()
         initc();
         num_to_char(0, 4, i % 2);
         num_to_char(5, 9, 1);
-        num_to_char(10, 14, 0);
+        //传输过程中标志位不需要赋值
+        num_to_char(15, 19, 0);
         if (read(i * 1480) == 1) { break; }
-        num_to_char(10, 14, check(message));
-        cout << message << endl;
+        num_to_char(15, 19, check(message));
 
         sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
         cout << "已发送" << i % 2 << "号数据包" << endl;
@@ -161,12 +161,15 @@ int main()
         else
         {
             //cout << "已接收" << endl;
-            if (recvBuf[9] == i % 2)
+            if (recvBuf[11] == '0' || recvBuf[9] == i % 2+48)
             {
                 i--;
                 continue;
             }
-            cout << recvBuf[15] << recvBuf[16] << recvBuf[17] << endl;
+            if (recvBuf[11] == '1' && recvBuf[9] != i % 2 + 48)
+            {
+                cout << "ack" << endl;
+            }
         }
     }
     closesocket(sockClient);

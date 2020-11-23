@@ -8,12 +8,15 @@
 using namespace std;
 
 
-//数据包一共1500个字节，0-4表示序列号，5-9表示确认序列号，10-1494都是数据，1495-1499是校验和
+//数据包一共1500个字节
+//0-4表示序列号，5-9表示确认序列号
+//10-14是标志位，分别保留位、A（ack）、R（reset）、S（syn）、F（fin）
+//15-19是校验和，20-1499是数据
 char message[1500];
 
 
 //套接字初始化
-void init()
+void inits()
 {
 	WORD sockVersion = MAKEWORD(2, 2);
 	WSADATA wsaData;
@@ -22,6 +25,16 @@ void init()
 		cout << "没有正确初始化socket" << endl;
 		return;
 	}
+}
+
+
+void initc()
+{
+	for (int i = 0; i < 1500; i++)
+	{
+		message[i] = '0';
+	}
+	message[1499] = '\0';
 }
 
 
@@ -48,25 +61,21 @@ int char_to_num(int start, int end, char* ch)
 void num_to_char(int start, int end, int n)
 {
 	string str = to_string(n);
-	int j = 0;
-	for (int i = 0; i < 5; i++)
+	int j = str.length();
+	for (int i = end; i >= start && j >= 1; i--)
 	{
-		if (i < 5 - str.length())
-			message[start + i] = '0';
-		else
-		{
-			message[start + i] = str[j];
-			j++;
-		}
+		message[i] = str[j - 1];
+		j--;
 	}
 }
 
-int check(char*ch)
+
+int check(char* ch)
 {
 	int sum = 0;
 	for (int i = 0; i < strlen(ch); i++)
 	{
-		if (i >= 10 && i <= 14) { continue; }
+		if (i >= 15 && i <= 19) { continue; }
 		sum += abs((int)ch[i]) % 10;
 	}
 	return sum;
@@ -75,8 +84,8 @@ int check(char*ch)
 
 int main()
 {
-	init();
-
+	inits();
+	initc();
 
 	SOCKET sockServer = socket(AF_INET, SOCK_DGRAM, 0);
 	SOCKADDR_IN addrServer;
@@ -95,7 +104,7 @@ int main()
 
 
 	cout << "receiving" << endl;
-	for (int i = 0;i<1; i++)
+	for (int i = 0;; i++)
 	{
 		char recvBuf[1501];
 
@@ -111,7 +120,7 @@ int main()
 
 			int seq = char_to_num(0, 4, recvBuf);
 			int exp = char_to_num(5, 9, recvBuf);
-			int che = char_to_num(10, 14, recvBuf);
+			int che = char_to_num(15, 19, recvBuf);
 			if (che != check(recvBuf))
 			{
 				cout << "校验和不对，请重传" << endl;
@@ -127,13 +136,14 @@ int main()
 			}
 
 			num_to_char(0, 4, 1);
-			num_to_char(10, 14, check(message));
-			message[15] = 'a';
-			message[16] = 'c';
-			message[17] = 'k';
+			num_to_char(15, 19, check(message));
+			num_to_char(11, 11, 1);
 
 			sendto(sockServer, message, 1500, 0, (SOCKADDR*)&addrClient, nAddrlen);
-			cout << message[15] << message[16] << message[17] << endl;
+			if (message[11] == '1')
+			{
+				cout << "ack" << endl;
+			}
 		}
 	}
 	closesocket(sockServer);
