@@ -67,9 +67,9 @@ void num_to_char(int start, int end, int n)
 {
     string str = to_string(n);
     int j = str.length();
-    for (int i = end; i >= start && j >= 1; i++)
+    for (int i = end; i >= start && j >= 1; i--)
     {
-        message[start] = str[j - 1];
+        message[i] = str[j - 1];
         j--;
     }
 }
@@ -137,13 +137,13 @@ int main()
 
     for (int i = 0;; i++)
     {
-        memset(message, 0, sizeof(message));
+        initc();
         num_to_char(0, 4, i % 2);
         num_to_char(5, 9, 1);
         num_to_char(10, 14, 0);
         if (read(i * 1480) == 1) { break; }
         num_to_char(10, 14, check(message));
-
+        cout << message << endl;
 
         sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
         cout << "已发送" << i % 2 << "号数据包" << endl;
