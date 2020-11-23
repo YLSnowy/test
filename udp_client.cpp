@@ -120,19 +120,27 @@ int main()
 
 
 
-    //if (flag == 0)
-    //{
-    //    memset(message, 0, sizeof(message));
-    //    num_to_char(0, 4, 0);
-    //    num_to_char(5, 9, 0);
-    //    num_to_char(10, 14, 0);
-    //    num_to_char(15, 19, 1);
-    //    message[15] = 's';
-    //    message[16];
-
-    //    
-    //    flag = 1;
-    //}
+    if (flag == 0)
+    {
+        num_to_char(0, 4, 0);
+        num_to_char(5, 9, 0);
+        num_to_char(13, 13, 1);
+        num_to_char(15, 19, check(message));
+        sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
+        cout << "建立连接中" << endl;
+        int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
+        if (ret < 0) { cout << "error" << endl; return -1; }
+        if (recvBuf[11] == '1' && recvBuf[13] == '1')
+        {
+            cout << "已成功建立连接" << endl;
+        }
+        else
+        {
+            //这一部分是超时
+            return 0;
+        }
+        flag = 1;
+    }
 
 
     for (int i = 0;; i++)
@@ -161,7 +169,7 @@ int main()
         else
         {
             //cout << "已接收" << endl;
-            if (recvBuf[11] == '0' || recvBuf[9] == i % 2+48)
+            if (recvBuf[11] == '0' || recvBuf[9] == i % 2 + 48)
             {
                 i--;
                 continue;

@@ -121,6 +121,7 @@ int main()
 			int seq = char_to_num(0, 4, recvBuf);
 			int exp = char_to_num(5, 9, recvBuf);
 			int che = char_to_num(15, 19, recvBuf);
+			initc();
 			if (che != check(recvBuf))
 			{
 				cout << "校验和不对，请重传" << endl;
@@ -130,10 +131,19 @@ int main()
 			{
 				num_to_char(5, 9, 1 - seq);
 				cout << "已接收" << seq << "号数据包" << endl;
-
-				ofstream ofile("D:\\output1.txt", ios::app | ios::binary | ios::out);
-				ofile.write(recvBuf + 15, 1485);
+				if (recvBuf[13] != '1')
+				{
+					ofstream ofile("D:\\output1.txt", ios::app | ios::binary | ios::out);
+					ofile.write(recvBuf + 20, 1480);
+				}
 			}
+
+			if (recvBuf[13] == '1')
+			{
+				num_to_char(13, 13, 1);
+				num_to_char(11, 11, 1);
+			}
+
 
 			num_to_char(0, 4, 1);
 			num_to_char(15, 19, check(message));
@@ -142,7 +152,15 @@ int main()
 			sendto(sockServer, message, 1500, 0, (SOCKADDR*)&addrClient, nAddrlen);
 			if (message[11] == '1')
 			{
-				cout << "ack" << endl;
+				cout << "ack";
+			}
+			if (message[11] == '1' && message[13] == '1')
+			{
+				cout << " " << "fin" << endl;
+			}
+			else
+			{
+				cout << endl;
 			}
 		}
 	}
