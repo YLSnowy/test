@@ -131,10 +131,15 @@ int main()
 			{
 				num_to_char(5, 9, 1 - seq);
 				cout << "已接收" << seq << "号数据包" << endl;
-				if (recvBuf[13] != '1' && recvBuf[14] != '1')
+				if (recvBuf[13] != '1' && recvBuf[14] != '1'&&recvBuf[10]!='1')
 				{
 					ofstream ofile("D:\\output1.txt", ios::app | ios::binary | ios::out);
 					ofile.write(recvBuf + 20, 1480);
+				}
+				else if (recvBuf[13] != '1' && recvBuf[14] != '1' && recvBuf[10] == '1')
+				{
+					ofstream ofile("D:\\output1.txt", ios::app | ios::binary | ios::out);
+					ofile.write(recvBuf + 20, char_to_num(1495, 1499, recvBuf));
 				}
 			}
 

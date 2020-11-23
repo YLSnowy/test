@@ -16,7 +16,7 @@ char recvBuf[1500];
 
 //数据包一共1500个字节
 //0-4表示序列号，5-9表示确认序列号
-//10-14是标志位，分别保留位、A（ack）、R（reset）、S（syn）、F（fin）
+//10-14是标志位，分别保留位、A（ack）、R（reset）、S（syn）、F（fin），保留位在判断是否是最后一个包的时候用到了
 //15-19是校验和，20-1499是数据
 char message[1500];
 
@@ -32,6 +32,7 @@ void inits()
     }
 }
 
+
 void initc()
 {
     for (int i = 0; i < 1500; i++)
@@ -39,27 +40,6 @@ void initc()
         message[i] = '0';
     }
     message[1499] = '\0';
-}
-
-
-int read(int offset)
-{
-    ifstream infile;
-    infile.open("D:\\helloworld.txt", ios::in | ios::binary);
-    infile.seekg(0, infile.end);
-    int length = infile.tellg();
-    if (offset > length) { return 1; }
-    infile.seekg(offset);
-    if (!infile.is_open()) return -1;
-    char buf[1481];
-    infile.read(buf, 1480);
-    buf[1480] = '\0';
-
-    for (int i = 0; i < 1480; i++)
-    {
-        message[20 + i] = buf[i];
-    }
-    return 0;
 }
 
 
@@ -73,6 +53,44 @@ void num_to_char(int start, int end, int n)
         j--;
     }
 }
+
+
+int read(int offset)
+{
+    ifstream infile;
+    infile.open("D:\\helloworld.txt", ios::in | ios::binary);
+    infile.seekg(0, infile.end);
+    int length = infile.tellg();
+    if (offset > length) { return 1; }
+    infile.seekg(offset);
+    if (!infile.is_open()) return -1;
+
+    if (length - offset < 1480)
+    {
+        char* buf = new char[length - offset + 1];
+        infile.read(buf, length - offset);
+        buf[length - offset] = '\0';
+        num_to_char(10, 10, 1);
+        for (int i = 0; i < length - offset; i++)
+        {
+            message[20 + i] = buf[i];
+        }
+        num_to_char(1495, 1499, length - offset);
+    }
+    else
+    {
+        char buf[1481];
+        infile.read(buf, 1480);
+        buf[1480] = '\0';
+
+        for (int i = 0; i < 1480; i++)
+        {
+            message[20 + i] = buf[i];
+        }
+    }
+    return 0;
+}
+
 
 int check(char* ch)
 {
@@ -98,12 +116,6 @@ int check(char* ch)
 //    return 0;
 //}
 
-
-
-void connect()
-{
-
-}
 
 int main()
 {
