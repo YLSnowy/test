@@ -131,7 +131,7 @@ int main()
 			{
 				num_to_char(5, 9, 1 - seq);
 				cout << "已接收" << seq << "号数据包" << endl;
-				if (recvBuf[13] != '1')
+				if (recvBuf[13] != '1' && recvBuf[14] != '1')
 				{
 					ofstream ofile("D:\\output1.txt", ios::app | ios::binary | ios::out);
 					ofile.write(recvBuf + 20, 1480);
@@ -143,7 +143,6 @@ int main()
 				num_to_char(13, 13, 1);
 				num_to_char(11, 11, 1);
 			}
-
 
 			num_to_char(0, 4, 1);
 			num_to_char(15, 19, check(message));
@@ -161,6 +160,12 @@ int main()
 			else
 			{
 				cout << endl;
+			}
+
+			if (recvBuf[14] == '1' && recvBuf[11] == '1')
+			{
+				cout << "数据传送完毕，关闭连接" << endl;
+				break;
 			}
 		}
 	}

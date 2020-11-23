@@ -119,7 +119,7 @@ int main()
     int SerAddrlen = sizeof(addrServer);
 
 
-
+    //两次握手建立连接过程
     if (flag == 0)
     {
         num_to_char(0, 4, 0);
@@ -143,6 +143,7 @@ int main()
     }
 
 
+    //传输文件过程
     for (int i = 0;; i++)
     {
         initc();
@@ -180,6 +181,19 @@ int main()
             }
         }
     }
+
+
+    //两次挥手断开连接过程
+    initc();
+    num_to_char(0, 4, 0);
+    num_to_char(5, 9, 0);
+    num_to_char(11, 11, 1);
+    num_to_char(14, 14, 1);
+    num_to_char(15, 19, check(message));
+    sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
+    cout << "已发送结束数据包" << endl;
+    int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
+
     closesocket(sockClient);
     WSACleanup();
     return 0;
