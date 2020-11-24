@@ -13,6 +13,7 @@ using namespace std;
 //10-14是标志位，分别保留位、A（ack）、R（reset）、S（syn）、F（fin）
 //15-19是校验和，20-1499是数据
 char message[1500];
+char recvBuf[1500];
 
 
 //套接字初始化
@@ -35,14 +36,6 @@ void initc()
 		message[i] = '0';
 	}
 	message[1499] = '\0';
-}
-
-
-void write(string ch)
-{
-	ofstream outfile;
-	outfile.open("D:\\4.jpg", ios::out | ios::app);
-	outfile << ch;
 }
 
 
@@ -82,6 +75,62 @@ int check(char* ch)
 }
 
 
+int print()
+{
+	if (message[11] == '1')
+	{
+		cout << "ack";
+	}
+	if (message[13] == '1')
+	{
+		cout << " " << "syn" << endl;
+	}
+	else if (recvBuf[11] == '1' && recvBuf[14] == '1')
+	{
+		cout << " " << "fin" << endl;
+		return 1;
+	}
+	else
+	{
+		cout << endl;
+	}
+	return 0;
+}
+
+void mywrite()
+{
+	if (recvBuf[13] != '1' && recvBuf[14] != '1' && recvBuf[10] != '1')
+	{
+		ofstream ofile("D:\\output.txt", ios::app | ios::binary | ios::out);
+		ofile.write(recvBuf + 20, 1480);
+	}
+	else if (recvBuf[13] != '1' && recvBuf[14] != '1' && recvBuf[10] == '1')
+	{
+		ofstream ofile("D:\\output.txt", ios::app | ios::binary | ios::out);
+		ofile.write(recvBuf + 20, char_to_num(1495, 1499, recvBuf));
+	}
+}
+
+void mysend(SOCKET sockServer, SOCKADDR_IN addrClient, int nAddrlen)
+{
+	if (recvBuf[13] == '1')
+	{
+		num_to_char(13, 13, 1);
+		num_to_char(11, 11, 1);
+	}
+	if (recvBuf[11] == '1' && recvBuf[14] == '1')
+	{
+		num_to_char(11, 11, 1);
+		num_to_char(14, 14, 1);
+	}
+
+	num_to_char(0, 4, 1);
+	num_to_char(15, 19, check(message));
+	num_to_char(11, 11, 1);
+
+	sendto(sockServer, message, 1500, 0, (SOCKADDR*)&addrClient, nAddrlen);
+}
+
 int main()
 {
 	inits();
@@ -106,9 +155,7 @@ int main()
 	cout << "receiving" << endl;
 	for (int i = 0;; i++)
 	{
-		char recvBuf[1501];
-
-		int ret =recvfrom(sockServer, recvBuf, sizeof(recvBuf), 0, (SOCKADDR*)&addrClient, &nAddrlen);
+		int ret = recvfrom(sockServer, recvBuf, 1500, 0, (SOCKADDR*)&addrClient, &nAddrlen);
 		if (ret == 0)
 		{
 			cout << "没有收到" << endl;
@@ -131,47 +178,18 @@ int main()
 			{
 				num_to_char(5, 9, 1 - seq);
 				cout << "已接收" << seq << "号数据包" << endl;
-				if (recvBuf[13] != '1' && recvBuf[14] != '1'&&recvBuf[10]!='1')
-				{
-					ofstream ofile("D:\\output1.txt", ios::app | ios::binary | ios::out);
-					ofile.write(recvBuf + 20, 1480);
-				}
-				else if (recvBuf[13] != '1' && recvBuf[14] != '1' && recvBuf[10] == '1')
-				{
-					ofstream ofile("D:\\output1.txt", ios::app | ios::binary | ios::out);
-					ofile.write(recvBuf + 20, char_to_num(1495, 1499, recvBuf));
-				}
+				mywrite();
 			}
 
-			if (recvBuf[13] == '1')
-			{
-				num_to_char(13, 13, 1);
-				num_to_char(11, 11, 1);
-			}
+			mysend(sockServer, addrClient, nAddrlen);
 
-			num_to_char(0, 4, 1);
-			num_to_char(15, 19, check(message));
-			num_to_char(11, 11, 1);
-
-			sendto(sockServer, message, 1500, 0, (SOCKADDR*)&addrClient, nAddrlen);
-			if (message[11] == '1')
+			
+			int ret = print();
+			if (ret == 1)
 			{
-				cout << "ack";
-			}
-			if (message[11] == '1' && message[13] == '1')
-			{
-				cout << " " << "fin" << endl;
-			}
-			else
-			{
-				cout << endl;
-			}
-
-			if (recvBuf[14] == '1' && recvBuf[11] == '1')
-			{
-				cout << "数据传送完毕，关闭连接" << endl;
 				break;
 			}
+			
 		}
 	}
 	closesocket(sockServer);

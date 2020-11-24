@@ -10,15 +10,13 @@
 using namespace std;
 
 int flag = 0;
-char recvBuf[1500];
-
-
 
 //数据包一共1500个字节
 //0-4表示序列号，5-9表示确认序列号
 //10-14是标志位，分别保留位、A（ack）、R（reset）、S（syn）、F（fin），保留位在判断是否是最后一个包的时候用到了
 //15-19是校验和，20-1499是数据
 char message[1500];
+char recvBuf[1500];
 
 
 void inits()
@@ -104,58 +102,30 @@ int check(char* ch)
 }
 
 
-//DWORD WINAPI ServerThread(LPVOID lpParameter)
-//{
-//    SOCKET* ClientSocket = (SOCKET*)lpParameter;
-//    while (1)
-//    {
-//        int ret = recvfrom(*ClientSocket, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
-//    }
-//    closesocket(*ClientSocket);
-//    free(ClientSocket);
-//    return 0;
-//}
-
-
-int main()
+int shake(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
 {
-    inits();
-    initc();
-
-    SOCKET sockClient = socket(AF_INET, SOCK_DGRAM, 0);
-
-    SOCKADDR_IN addrServer;
-    addrServer.sin_family = AF_INET;
-    addrServer.sin_port = htons(1234);
-    addrServer.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
-    int SerAddrlen = sizeof(addrServer);
-
-
-    //两次握手建立连接过程
-    if (flag == 0)
+    num_to_char(0, 4, 0);
+    num_to_char(5, 9, 0);
+    num_to_char(13, 13, 1);
+    num_to_char(15, 19, check(message));
+    sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
+    cout << "建立连接中" << endl;
+    int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
+    if (ret < 0) { cout << "error" << endl; return -1 ; }
+    if (recvBuf[11] == '1' && recvBuf[13] == '1')
     {
-        num_to_char(0, 4, 0);
-        num_to_char(5, 9, 0);
-        num_to_char(13, 13, 1);
-        num_to_char(15, 19, check(message));
-        sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
-        cout << "建立连接中" << endl;
-        int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
-        if (ret < 0) { cout << "error" << endl; return -1; }
-        if (recvBuf[11] == '1' && recvBuf[13] == '1')
-        {
-            cout << "已成功建立连接" << endl;
-        }
-        else
-        {
-            //这一部分是超时
-            return 0;
-        }
-        flag = 1;
+        cout << "已成功建立连接" << endl;
     }
+    else
+    {
+        //这一部分是超时
+        return 0;
+    }
+}
 
 
-    //传输文件过程
+int transfer(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
+{
     for (int i = 0;; i++)
     {
         initc();
@@ -173,7 +143,6 @@ int main()
         //int ret = 0; int flag = 0;
         //CreateThread(NULL, 0, &ServerThread, &sockClient, 0, NULL);
         int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
-
         if (ret < 0)
         {
             cout << "error" << endl;
@@ -193,20 +162,69 @@ int main()
             }
         }
     }
+}
 
 
-    //两次挥手断开连接过程
+int close(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
+{
+    while (1)
+    {
+        initc();
+        num_to_char(0, 4, 0);
+        num_to_char(5, 9, 0);
+        num_to_char(11, 11, 1);
+        num_to_char(14, 14, 1);
+        num_to_char(15, 19, check(message));
+        sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
+        cout << "已发送结束数据包" << endl;
+        int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
+        if (ret < 0)
+        {
+            cout << "error" << endl;
+            return -1;
+        }
+        if (recvBuf[11] == '1' && recvBuf[14] == '1' && ret > 0)
+        {
+            closesocket(sockClient);
+            WSACleanup();
+            break;
+        }
+    }
+}
+
+
+int main()
+{
+    inits();
     initc();
-    num_to_char(0, 4, 0);
-    num_to_char(5, 9, 0);
-    num_to_char(11, 11, 1);
-    num_to_char(14, 14, 1);
-    num_to_char(15, 19, check(message));
-    sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
-    cout << "已发送结束数据包" << endl;
-    int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
 
-    closesocket(sockClient);
-    WSACleanup();
+    SOCKET sockClient = socket(AF_INET, SOCK_DGRAM, 0);
+
+    SOCKADDR_IN addrServer;
+    addrServer.sin_family = AF_INET;
+    addrServer.sin_port = htons(1234);
+    addrServer.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
+    int SerAddrlen = sizeof(addrServer);
+
+
+
+    int ret;
+    ret = shake(sockClient, addrServer, SerAddrlen);
+    if (ret == -1)
+    {
+        return 0;
+    }
+
+    ret = transfer(sockClient, addrServer, SerAddrlen);
+    if (ret == -1)
+    {
+        return 0;
+    }
+
+    ret = close(sockClient, addrServer, SerAddrlen);
+    if ( ret == -1)
+    {
+        return 0;
+    }
     return 0;
 }
