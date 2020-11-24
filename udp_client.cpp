@@ -9,7 +9,7 @@
 #pragma comment(lib,"ws2_32.lib")
 using namespace std;
 
-int flag = 0;
+//int flag = 0;
 
 //数据包一共1500个字节
 //0-4表示序列号，5-9表示确认序列号
@@ -102,25 +102,59 @@ int check(char* ch)
 }
 
 
+void myrecv(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& flag)
+{
+    int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
+    if (ret < 0)
+    {
+        flag = -1;
+    }
+    flag = 1;
+}
+
+
 int shake(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
 {
     num_to_char(0, 4, 0);
     num_to_char(5, 9, 0);
     num_to_char(13, 13, 1);
     num_to_char(15, 19, check(message));
-    sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
-    cout << "建立连接中" << endl;
-    int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
-    if (ret < 0) { cout << "error" << endl; return -1 ; }
-    if (recvBuf[11] == '1' && recvBuf[13] == '1')
+    while (1)
     {
-        cout << "已成功建立连接" << endl;
+        sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
+        cout << "建立连接中" << endl;
+        int flag = 0, flag1 = 0;
+        thread t1(myrecv, sockClient, addrServer, SerAddrlen, ref(flag));
+        clock_t now = clock();
+        while (1) {
+            if (flag == 1)
+            {
+                flag1 = 0;
+                break;
+            }
+            else if (flag == -1)
+            {
+                return -1;
+            }
+            if ((double)(clock() - now) >= 3000)
+            {
+                flag1 = 1;
+                break;
+            }
+        }
+        t1.detach();
+        if (flag1 == 0)
+        {
+            if (recvBuf[11] == '1' && recvBuf[13] == '1')
+            {
+                cout << "已成功建立连接" << endl;
+            }
+            break;
+        }
     }
-    else
-    {
-        //这一部分是超时
-        return 0;
-    }
+
+    //myrecv(sockClient, addrServer, SerAddrlen);
+    return 0;
 }
 
 
@@ -137,31 +171,45 @@ int transfer(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
         num_to_char(15, 19, check(message));
 
         sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
-        cout << "已发送" << i % 2 << "号数据包" << endl;
+        cout << "已发送" << i << "号数据包" << endl;
 
-
-        //int ret = 0; int flag = 0;
-        //CreateThread(NULL, 0, &ServerThread, &sockClient, 0, NULL);
-        int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
-        if (ret < 0)
-        {
-            cout << "error" << endl;
-            return -1;
+        int flag = 0;
+        int flag1 = 0;
+        thread t1(myrecv, sockClient, addrServer, SerAddrlen,ref(flag));
+        clock_t now = clock();
+        while (1) {
+            if (flag == 1)
+            {
+                flag1 = 0;
+                //t1.detach();
+                break;
+            }
+            else if (flag == -1)
+            {
+                return -1;
+            }
+            if ((double)(clock() - now) >= 3000)
+            {
+                flag1 = 1;
+                //t1.detach();
+                break;
+            }
         }
-        else
+        //myrecv(sockClient, addrServer, SerAddrlen);
+        t1.detach();
+
+        if (recvBuf[11] == '0' || recvBuf[9] == i % 2 + 48 || flag1 == 1)
         {
-            //cout << "已接收" << endl;
-            if (recvBuf[11] == '0' || recvBuf[9] == i % 2 + 48)
-            {
-                i--;
-                continue;
-            }
-            if (recvBuf[11] == '1' && recvBuf[9] != i % 2 + 48)
-            {
-                cout << "ack" << endl;
-            }
+            i--;
+            cout << "重发" << endl;
+            continue;
+        }
+        if (recvBuf[11] == '1' && recvBuf[9] != i % 2 + 48)
+        {
+            cout << "ack" << endl;
         }
     }
+    return 0;
 }
 
 

@@ -97,6 +97,7 @@ int print()
 	return 0;
 }
 
+
 void mywrite()
 {
 	if (recvBuf[13] != '1' && recvBuf[14] != '1' && recvBuf[10] != '1')
@@ -110,6 +111,7 @@ void mywrite()
 		ofile.write(recvBuf + 20, char_to_num(1495, 1499, recvBuf));
 	}
 }
+
 
 void mysend(SOCKET sockServer, SOCKADDR_IN addrClient, int nAddrlen)
 {
@@ -131,6 +133,7 @@ void mysend(SOCKET sockServer, SOCKADDR_IN addrClient, int nAddrlen)
 	sendto(sockServer, message, 1500, 0, (SOCKADDR*)&addrClient, nAddrlen);
 }
 
+
 int main()
 {
 	inits();
@@ -150,6 +153,7 @@ int main()
 	SOCKADDR_IN addrClient;
 	int nAddrlen = sizeof(addrClient);
 
+	int exp_seq = 0;
 
 
 	cout << "receiving" << endl;
@@ -176,14 +180,28 @@ int main()
 			}
 			else
 			{
-				num_to_char(5, 9, 1 - seq);
+				if (recvBuf[13] == '1')
+				{
+					exp_seq = seq++;
+				}
+				else
+				{
+					if (seq == exp_seq)
+					{
+						exp_seq++;
+					}
+				}
+				num_to_char(5, 9, exp_seq);
 				cout << "已接收" << seq << "号数据包" << endl;
 				mywrite();
 			}
+			//if (i <= 10)
+			//{
+			//	mysend(sockServer, addrClient, nAddrlen);
+			//}
 
 			mysend(sockServer, addrClient, nAddrlen);
 
-			
 			int ret = print();
 			if (ret == 1)
 			{
