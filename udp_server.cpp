@@ -102,12 +102,12 @@ void mywrite()
 {
 	if (recvBuf[13] != '1' && recvBuf[14] != '1' && recvBuf[10] != '1')
 	{
-		ofstream ofile("D:\\output.txt", ios::app | ios::binary | ios::out);
+		ofstream ofile("D:\\4.jpg", ios::app | ios::binary | ios::out);
 		ofile.write(recvBuf + 20, 1480);
 	}
 	else if (recvBuf[13] != '1' && recvBuf[14] != '1' && recvBuf[10] == '1')
 	{
-		ofstream ofile("D:\\output.txt", ios::app | ios::binary | ios::out);
+		ofstream ofile("D:\\4.jpg", ios::app | ios::binary | ios::out);
 		ofile.write(recvBuf + 20, char_to_num(1495, 1499, recvBuf));
 	}
 }
@@ -182,7 +182,7 @@ int main()
 			{
 				if (recvBuf[13] == '1')
 				{
-					exp_seq = seq++;
+					exp_seq = seq + 1;
 				}
 				else
 				{

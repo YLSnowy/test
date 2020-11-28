@@ -53,10 +53,22 @@ void num_to_char(int start, int end, int n)
 }
 
 
+int char_to_num(int start, int end, char* ch)
+{
+    string str;
+    for (int i = start; i <= end; i++)
+    {
+        str += ch[i];
+    }
+    int n = atoi(str.c_str());
+    return n;
+}
+
+
 int read(int offset)
 {
     ifstream infile;
-    infile.open("D:\\helloworld.txt", ios::in | ios::binary);
+    infile.open("D:\\1.jpg", ios::in | ios::binary);
     infile.seekg(0, infile.end);
     int length = infile.tellg();
     if (offset > length) { return 1; }
@@ -107,9 +119,12 @@ void myrecv(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& flag
     int ret = recvfrom(sockClient, recvBuf, 1500, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
     if (ret < 0)
     {
+        cout << "服务器端没有打开连接，请等待一段时间再试" << endl;
         flag = -1;
+        return;
     }
     flag = 1;
+    return;
 }
 
 
@@ -134,6 +149,7 @@ int shake(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
             }
             else if (flag == -1)
             {
+                t1.detach();
                 return -1;
             }
             if ((double)(clock() - now) >= 3000)
@@ -143,6 +159,7 @@ int shake(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
             }
         }
         t1.detach();
+        //myrecv(sockClient, addrServer, SerAddrlen, ref(flag));
         if (flag1 == 0)
         {
             if (recvBuf[11] == '1' && recvBuf[13] == '1')
@@ -160,10 +177,12 @@ int shake(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
 
 int transfer(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
 {
+    int seq = 1;
+    int exp = 0;
     for (int i = 0;; i++)
     {
         initc();
-        num_to_char(0, 4, i % 2);
+        num_to_char(0, 4, seq);
         num_to_char(5, 9, 1);
         //传输过程中标志位不需要赋值
         num_to_char(15, 19, 0);
@@ -171,7 +190,7 @@ int transfer(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
         num_to_char(15, 19, check(message));
 
         sendto(sockClient, message, 1500, 0, (SOCKADDR*)&addrServer, SerAddrlen);
-        cout << "已发送" << i << "号数据包" << endl;
+        cout << "已发送" << seq << "号数据包" << endl;
 
         int flag = 0;
         int flag1 = 0;
@@ -186,6 +205,7 @@ int transfer(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
             }
             else if (flag == -1)
             {
+                t1.detach();
                 return -1;
             }
             if ((double)(clock() - now) >= 3000)
@@ -195,18 +215,30 @@ int transfer(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
                 break;
             }
         }
-        //myrecv(sockClient, addrServer, SerAddrlen);
-        t1.detach();
 
-        if (recvBuf[11] == '0' || recvBuf[9] == i % 2 + 48 || flag1 == 1)
+        t1.detach();
+        //myrecv(sockClient, addrServer, SerAddrlen, ref(flag));
+        if (flag1 == 0)
+        {
+            exp = char_to_num(5, 9, recvBuf);
+            seq = char_to_num(0, 4, message);
+            if (exp == seq + 1)
+            {
+                cout << "ack" << seq << endl;
+                seq = exp;
+            }
+            else 
+            {
+                cout << "失序重发" << seq << endl;
+                i--;
+                continue;
+            }
+        }
+        else
         {
             i--;
-            cout << "重发" << endl;
+            cout << "超时重发" << endl;
             continue;
-        }
-        if (recvBuf[11] == '1' && recvBuf[9] != i % 2 + 48)
-        {
-            cout << "ack" << endl;
         }
     }
     return 0;
