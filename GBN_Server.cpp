@@ -112,7 +112,6 @@ void mywrite(const char* path)
 	{
 		ofstream ofile(path, ios::app | ios::binary | ios::out);
 		//如果不是1500个字节，则需要从数据包的最后5位中读出来实际长度，并写入
-		cout << char_to_num(20, 24, recvBuf) << endl;
 		ofile.write(recvBuf + 25, char_to_num(20, 24, recvBuf));
 	}
 }
@@ -190,7 +189,7 @@ int main()
 				}
 				else
 				{
-					//通过自己维护的期望序列号和收到的数据包的序列号进行比睿
+					//通过自己维护的期望序列号和收到的数据包的序列号进行比较
 					if (seq == exp_seq)
 					{
 						exp_seq++;
@@ -214,8 +213,21 @@ int main()
 			}
 
 			mysend(sockServer, addrClient, nAddrlen);
+			
 
+			//用来测试超时重传，即10个数据包之后不再发送ack
 			//if (i < 10)
+			//{
+			//	mysend(sockServer, addrClient, nAddrlen);
+			//}
+
+			//用来测试快速重传，回复的ack都会是针对同一个数据包的ack
+			//if (i > 10)
+			//{
+			//	num_to_char(5, 9, 9);
+			//	mysend(sockServer, addrClient, nAddrlen);
+			//}
+			//else
 			//{
 			//	mysend(sockServer, addrClient, nAddrlen);
 			//}

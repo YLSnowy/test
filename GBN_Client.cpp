@@ -146,12 +146,15 @@ void myrecv(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& flag
 		return;
 	}
 	int exp = char_to_num(5, 9, recvBuf);
+	//证明收到的是新的ack
 	if (exp > base)
 	{
 		flag = 1;
 		base = exp;
+		cout << "ack" << base << endl;
 		countack = 0;
 	}
+	//证明是重复的ack
 	else if (exp == base)
 	{
 		flag = 0;
@@ -163,24 +166,25 @@ void myrecv(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& flag
 
 void start_timer(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& nextseqnum, int& base, int &flag, int &countack)
 {
+	//在计时器的线程中调用接收函数的线程
 	thread t1(myrecv, sockClient, addrServer, SerAddrlen, ref(flag), ref(base), ref(countack));
-
 
 	clock_t now = clock();
 	while (1) {
-		if (flag == 1)
+		if (flag == 1)//表示正确收到
 		{
 			t1.detach();
 			return;
 		}
-		if (countack == 3)
+		if (countack == 3)//快速重传
 		{
 			nextseqnum = base;
+			countack = 0;
 			t1.detach();
 			cout << "已快速重传" << base << "号数据包" << endl;
 			return;
 		}
-		if (((double)clock() - (double)now) >= 1000)
+		if (((double)clock() - (double)now) >= 1000)//超时重传
 		{
 			nextseqnum = base;
 			t1.detach();
@@ -257,6 +261,10 @@ int close(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen)
 //主函数
 int main(int argc, char* argv[])
 {
+	clock_t startTime, endTime;
+	startTime = clock();//计时开始
+
+
 	inits();
 	initc();
 
@@ -298,19 +306,23 @@ int main(int argc, char* argv[])
 
 			flag = 0;
 			countack = 0;
-			
+
+			//nextseqnum作为参数传进去的原因是因为如果超时或者是快速重传，计时线程会直接将nextseqnum置位base
+			//base作为参数的原因除了上面还有就是接收数据包的线程会直接将base移动，所以主函数不需要对base进行修改
+			//flag是在两个线程之间传递的参数，如果接收数据包的线程收到了ack，会将flag置位，计时器会停下来
+			//countack是重复ack的次数，如果重复ack超过三次则进行快速重传
 			thread t2(start_timer, sockClient, addrServer, SerAddrlen, ref(nextseqnum), ref(base), ref(flag), ref(countack));
 			t2.detach();
-			
-
 		}
 	}
 
 	ret = close(sockClient, addrServer, SerAddrlen);
-	if(ret==-1)
+	if (ret == -1)
 	{
 		return 0;
 	}
 
+	endTime = clock();
+	cout << "The run time is: " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 	return 0;
 }
