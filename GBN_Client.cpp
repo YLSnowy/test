@@ -15,7 +15,6 @@ using namespace std;
 //25-1043是数据
 char message[1024];
 char recvBuf[1024];
-int n, countack;
 string path;
 
 
@@ -137,7 +136,7 @@ int check(char* ch)
 }
 
 
-void myrecv(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& flag, int& base, int& countack)
+void myrecv(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& flag, int& base, int& countack, double& cwnd, int &ssthresh,bool&crowd)
 {
 	int ret = recvfrom(sockClient, recvBuf, 1024, 0, (SOCKADDR*)&addrServer, &SerAddrlen);
 	if (ret < 0)
@@ -153,6 +152,26 @@ void myrecv(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& flag
 		base = exp;
 		cout << "ack" << base << endl;
 		countack = 0;
+		if (crowd == false)
+		{
+			cwnd++;
+			if (cwnd > ssthresh)
+			{
+				ssthresh = cwnd / 2;
+				cwnd = 1;
+				crowd = true;
+			}
+		}
+		else
+		{
+			cwnd = cwnd + 1 / cwnd;
+			if (cwnd > ssthresh)
+			{
+				ssthresh = cwnd / 2;
+				cwnd = 1;
+				crowd = true;
+			}
+		}
 	}
 	//证明是重复的ack
 	else if (exp == base)
@@ -164,10 +183,10 @@ void myrecv(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& flag
 }
 
 
-void start_timer(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& nextseqnum, int& base, int &flag, int &countack)
+void start_timer(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int& nextseqnum, int& base, int& flag, int& countack, double& cwnd, int& ssthresh, bool& crowd)
 {
 	//在计时器的线程中调用接收函数的线程
-	thread t1(myrecv, sockClient, addrServer, SerAddrlen, ref(flag), ref(base), ref(countack));
+	thread t1(myrecv, sockClient, addrServer, SerAddrlen, ref(flag), ref(base), ref(countack), ref(cwnd), ref(ssthresh), ref(crowd));
 
 	clock_t now = clock();
 	while (1) {
@@ -188,6 +207,9 @@ void start_timer(SOCKET sockClient, SOCKADDR_IN addrServer, int SerAddrlen, int&
 		{
 			nextseqnum = base;
 			t1.detach();
+			ssthresh = cwnd / 2;
+			cwnd = 1;
+			crowd = false;
 			cout << "已超时重传" << base << "号数据包" << endl;
 			return;
 		}
@@ -283,8 +305,8 @@ int main(int argc, char* argv[])
 	const char* p = path.c_str();
 
 
-	cout << "请输入滑动窗口大小：";
-	cin >> n;
+
+
 
 	int ret;
 	ret = shake(sockClient, addrServer, SerAddrlen);
@@ -294,15 +316,25 @@ int main(int argc, char* argv[])
 	}
 
 
-	int base = 0, nextseqnum = 0, flag = 0, countack = 0;
+	int base = 0, nextseqnum = 0, flag = 0, countack = 0, ssthresh;
+	double cwnd;
+	bool crowd = false;
+
+	cout << "请输入滑动窗口阈值大小：";
+	cin >> ssthresh;
+	cwnd = 1;
+
+
 	while (1)
 	{
-		if (nextseqnum < base + n)
+		if (nextseqnum < base + cwnd)
 		{
 			int ret = transfer(sockClient, addrServer, SerAddrlen, nextseqnum, p);
 			if (ret == 1)
 				break;
 			nextseqnum++;
+
+			cout << "当前滑动窗窗口大小：" << cwnd << endl << "当前窗口阈值为：" << ssthresh << endl;
 
 			flag = 0;
 			countack = 0;
@@ -311,7 +343,7 @@ int main(int argc, char* argv[])
 			//base作为参数的原因除了上面还有就是接收数据包的线程会直接将base移动，所以主函数不需要对base进行修改
 			//flag是在两个线程之间传递的参数，如果接收数据包的线程收到了ack，会将flag置位，计时器会停下来
 			//countack是重复ack的次数，如果重复ack超过三次则进行快速重传
-			thread t2(start_timer, sockClient, addrServer, SerAddrlen, ref(nextseqnum), ref(base), ref(flag), ref(countack));
+			thread t2(start_timer, sockClient, addrServer, SerAddrlen, ref(nextseqnum), ref(base), ref(flag), ref(countack), ref(cwnd), ref(ssthresh), ref(crowd));
 			t2.detach();
 		}
 	}
