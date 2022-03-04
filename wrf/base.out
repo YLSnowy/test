@@ -1,0 +1,28 @@
+wrf ref
+error: Using insecure argv source. Graphene will continue application execution, but this configuration must not be used in production!
+error: Accessing file:namelist.input is denied (Operation denied). This file is not trusted or allowed. Trusted files should be regular files (seekable).
+error: Accessing file:namelist.input is denied (Operation denied). This file is not trusted or allowed. Trusted files should be regular files (seekable).
+error: Accessing file:namelist.input is denied (Operation denied). This file is not trusted or allowed. Trusted files should be regular files (seekable).
+error: Accessing file:namelist.input is denied (Operation denied). This file is not trusted or allowed. Trusted files should be regular files (seekable).
+At line 91 of file module_wrf_error.fppized.f90 (unit = 27)
+Fortran runtime error: Cannot open file 'namelist.input': Permission denied
+
+Error termination. Backtrace:
+
+Could not print backtrace: libbacktrace could not find executable to open
+#0  0x1771c0d5a
+#1  0x1771c1869
+#2  0x1771c254f
+#3  0x1774019d6
+#4  0x177401ccc
+#5  0x17843183f
+#6  0x1774e836f
+#7  0x178432e66
+#8  0x1774a0b21
+#9  0x176e43262
+#10  0x1774a0b6d
+#11  0xffffffffffffffff
+
+real	0m34.686s
+user	0m3.554s
+sys	0m30.351s

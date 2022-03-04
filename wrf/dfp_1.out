@@ -1,0 +1,218 @@
+wrf train
+error: Using insecure argv source. Graphene will continue application execution, but this configuration must not be used in production!
+--- WARNING: traj_opt is zero, but num_traj is not zero; setting num_traj to zero.
+--- NOTE: sst_update is 0, setting io_form_auxinput4 = 0 and auxinput4_interval = 0 for all domains
+--- NOTE: grid_fdda is 0 for domain      1, setting gfdda interval and ending time to 0 for that domain.
+--- NOTE: both grid_sfdda and pxlsm_soil_nudge are 0 for domain      1, setting sgfdda interval and ending time to 0 for that domain.
+--- NOTE: obs_nudge_opt is 0 for domain      1, setting obs nudging interval and ending time to 0 for that domain.
+bl_pbl_physics /= 4, implies mfshconv must be 0, resetting
+--- NOTE: num_soil_layers has been set to      4
+WRF V3.6.1 MODEL
+ *************************************
+ Parent domain
+ ids,ide,jds,jde            1          74           1          61
+ ims,ime,jms,jme           -4          79          -4          66
+ ips,ipe,jps,jpe            1          74           1          61
+ *************************************
+DYNAMICS OPTION: Eulerian Mass Coordinate
+ alloc_space_field: domain            1 ,             128355772  bytes allocated
+med_initialdata_input: calling input_input
+ Resetting the hypsometric_opt from default value of 2 to 1
+Timing for processing wrfinput file (stream 0) for domain        1:    0.18300 elapsed seconds
+INPUT LandUse = "USGS"
+ LANDUSE TYPE = "USGS" FOUND          33  CATEGORIES           2  SEASONS WATER CATEGORY =           16  SNOW CATEGORY =           24
+INITIALIZE THREE Noah LSM RELATED TABLES
+ LANDUSE TYPE = USGS FOUND          27  CATEGORIES
+ INPUT SOIL TEXTURE CLASSIFICATION = STAS
+ SOIL TEXTURE CLASSIFICATION = STAS FOUND          19  CATEGORIES
+Timing for processing lateral boundary for domain        1:    0.11800 elapsed seconds
+WRF NUMBER OF TILES FROM OMP_GET_MAX_THREADS =   1
+ Tile Strategy is not specified. Assuming 1D-Y
+WRF TILE   1 IS      1 IE     74 JS      1 JE     61
+WRF NUMBER OF TILES =   1
+Timing for main: time 2000-01-24_12:01:00 on domain   1:    1.35600 elapsed seconds
+Timing for main: time 2000-01-24_12:02:00 on domain   1:    0.91800 elapsed seconds
+Timing for main: time 2000-01-24_12:03:00 on domain   1:    0.76800 elapsed seconds
+Timing for main: time 2000-01-24_12:04:00 on domain   1:    0.85300 elapsed seconds
+Timing for main: time 2000-01-24_12:05:00 on domain   1:    0.86800 elapsed seconds
+Timing for main: time 2000-01-24_12:06:00 on domain   1:    0.82900 elapsed seconds
+Timing for main: time 2000-01-24_12:07:00 on domain   1:    0.82700 elapsed seconds
+Timing for main: time 2000-01-24_12:08:00 on domain   1:    0.86600 elapsed seconds
+Timing for main: time 2000-01-24_12:09:00 on domain   1:    0.82900 elapsed seconds
+Timing for main: time 2000-01-24_12:10:00 on domain   1:    0.91200 elapsed seconds
+Timing for main: time 2000-01-24_12:11:00 on domain   1:    0.82300 elapsed seconds
+Timing for main: time 2000-01-24_12:12:00 on domain   1:    0.84100 elapsed seconds
+Timing for main: time 2000-01-24_12:13:00 on domain   1:    0.81400 elapsed seconds
+Timing for main: time 2000-01-24_12:14:00 on domain   1:    0.85100 elapsed seconds
+Timing for main: time 2000-01-24_12:15:00 on domain   1:    0.85500 elapsed seconds
+Timing for main: time 2000-01-24_12:16:00 on domain   1:    0.83600 elapsed seconds
+Timing for main: time 2000-01-24_12:17:00 on domain   1:    0.82900 elapsed seconds
+Timing for main: time 2000-01-24_12:18:00 on domain   1:    0.84600 elapsed seconds
+Timing for main: time 2000-01-24_12:19:00 on domain   1:    0.84500 elapsed seconds
+Timing for main: time 2000-01-24_12:20:00 on domain   1:    0.88100 elapsed seconds
+Timing for main: time 2000-01-24_12:21:00 on domain   1:    0.81500 elapsed seconds
+Timing for main: time 2000-01-24_12:22:00 on domain   1:    0.86600 elapsed seconds
+Timing for main: time 2000-01-24_12:23:00 on domain   1:    0.80800 elapsed seconds
+Timing for main: time 2000-01-24_12:24:00 on domain   1:    0.81700 elapsed seconds
+Timing for main: time 2000-01-24_12:25:00 on domain   1:    0.87500 elapsed seconds
+Timing for main: time 2000-01-24_12:26:00 on domain   1:    0.82100 elapsed seconds
+Timing for main: time 2000-01-24_12:27:00 on domain   1:    0.86200 elapsed seconds
+Timing for main: time 2000-01-24_12:28:00 on domain   1:    0.82400 elapsed seconds
+Timing for main: time 2000-01-24_12:29:00 on domain   1:    0.84900 elapsed seconds
+Timing for main: time 2000-01-24_12:30:00 on domain   1:    0.86500 elapsed seconds
+Timing for main: time 2000-01-24_12:31:00 on domain   1:    1.21700 elapsed seconds
+Timing for main: time 2000-01-24_12:32:00 on domain   1:    0.82700 elapsed seconds
+Timing for main: time 2000-01-24_12:33:00 on domain   1:    0.82000 elapsed seconds
+Timing for main: time 2000-01-24_12:34:00 on domain   1:    0.83500 elapsed seconds
+Timing for main: time 2000-01-24_12:35:00 on domain   1:    0.87000 elapsed seconds
+Timing for main: time 2000-01-24_12:36:00 on domain   1:    0.84800 elapsed seconds
+Timing for main: time 2000-01-24_12:37:00 on domain   1:    0.83000 elapsed seconds
+Timing for main: time 2000-01-24_12:38:00 on domain   1:    0.84900 elapsed seconds
+Timing for main: time 2000-01-24_12:39:00 on domain   1:    0.84800 elapsed seconds
+Timing for main: time 2000-01-24_12:40:00 on domain   1:    0.87900 elapsed seconds
+Timing for main: time 2000-01-24_12:41:00 on domain   1:    0.83200 elapsed seconds
+Timing for main: time 2000-01-24_12:42:00 on domain   1:    0.86800 elapsed seconds
+Timing for main: time 2000-01-24_12:43:00 on domain   1:    0.80600 elapsed seconds
+Timing for main: time 2000-01-24_12:44:00 on domain   1:    0.84800 elapsed seconds
+Timing for main: time 2000-01-24_12:45:00 on domain   1:    0.86100 elapsed seconds
+Timing for main: time 2000-01-24_12:46:00 on domain   1:    0.83500 elapsed seconds
+Timing for main: time 2000-01-24_12:47:00 on domain   1:    0.86000 elapsed seconds
+Timing for main: time 2000-01-24_12:48:00 on domain   1:    0.84700 elapsed seconds
+Timing for main: time 2000-01-24_12:49:00 on domain   1:    0.84200 elapsed seconds
+Timing for main: time 2000-01-24_12:50:00 on domain   1:    0.87200 elapsed seconds
+Timing for main: time 2000-01-24_12:51:00 on domain   1:    0.84500 elapsed seconds
+Timing for main: time 2000-01-24_12:52:00 on domain   1:    0.85700 elapsed seconds
+Timing for main: time 2000-01-24_12:53:00 on domain   1:    0.87500 elapsed seconds
+Timing for main: time 2000-01-24_12:54:00 on domain   1:    0.83900 elapsed seconds
+Timing for main: time 2000-01-24_12:55:00 on domain   1:    0.89400 elapsed seconds
+Timing for main: time 2000-01-24_12:56:00 on domain   1:    0.84000 elapsed seconds
+Timing for main: time 2000-01-24_12:57:00 on domain   1:    0.82700 elapsed seconds
+Timing for main: time 2000-01-24_12:58:00 on domain   1:    0.86400 elapsed seconds
+Timing for main: time 2000-01-24_12:59:00 on domain   1:    0.83700 elapsed seconds
+Timing for main: time 2000-01-24_13:00:00 on domain   1:    0.89600 elapsed seconds
+Timing for main: time 2000-01-24_13:01:00 on domain   1:    1.21100 elapsed seconds
+Timing for main: time 2000-01-24_13:02:00 on domain   1:    0.89000 elapsed seconds
+Timing for main: time 2000-01-24_13:03:00 on domain   1:    0.84600 elapsed seconds
+Timing for main: time 2000-01-24_13:04:00 on domain   1:    0.89100 elapsed seconds
+Timing for main: time 2000-01-24_13:05:00 on domain   1:    0.87300 elapsed seconds
+Timing for main: time 2000-01-24_13:06:00 on domain   1:    0.83200 elapsed seconds
+Timing for main: time 2000-01-24_13:07:00 on domain   1:    0.90300 elapsed seconds
+Timing for main: time 2000-01-24_13:08:00 on domain   1:    0.85300 elapsed seconds
+Timing for main: time 2000-01-24_13:09:00 on domain   1:    0.89000 elapsed seconds
+Timing for main: time 2000-01-24_13:10:00 on domain   1:    0.90100 elapsed seconds
+Timing for main: time 2000-01-24_13:11:00 on domain   1:    0.85900 elapsed seconds
+Timing for main: time 2000-01-24_13:12:00 on domain   1:    0.84300 elapsed seconds
+Timing for main: time 2000-01-24_13:13:00 on domain   1:    0.86600 elapsed seconds
+Timing for main: time 2000-01-24_13:14:00 on domain   1:    0.85100 elapsed seconds
+Timing for main: time 2000-01-24_13:15:00 on domain   1:    0.88000 elapsed seconds
+Timing for main: time 2000-01-24_13:16:00 on domain   1:    0.86000 elapsed seconds
+Timing for main: time 2000-01-24_13:17:00 on domain   1:    0.83100 elapsed seconds
+Timing for main: time 2000-01-24_13:18:00 on domain   1:    0.87800 elapsed seconds
+Timing for main: time 2000-01-24_13:19:00 on domain   1:    0.87000 elapsed seconds
+Timing for main: time 2000-01-24_13:20:00 on domain   1:    0.87700 elapsed seconds
+Timing for main: time 2000-01-24_13:21:00 on domain   1:    0.84800 elapsed seconds
+Timing for main: time 2000-01-24_13:22:00 on domain   1:    0.88500 elapsed seconds
+Timing for main: time 2000-01-24_13:23:00 on domain   1:    0.81900 elapsed seconds
+Timing for main: time 2000-01-24_13:24:00 on domain   1:    0.89700 elapsed seconds
+Timing for main: time 2000-01-24_13:25:00 on domain   1:    0.84800 elapsed seconds
+Timing for main: time 2000-01-24_13:26:00 on domain   1:    0.81700 elapsed seconds
+Timing for main: time 2000-01-24_13:27:00 on domain   1:    0.88600 elapsed seconds
+Timing for main: time 2000-01-24_13:28:00 on domain   1:    0.85600 elapsed seconds
+Timing for main: time 2000-01-24_13:29:00 on domain   1:    0.83800 elapsed seconds
+Timing for main: time 2000-01-24_13:30:00 on domain   1:    0.88900 elapsed seconds
+Timing for main: time 2000-01-24_13:31:00 on domain   1:    1.19100 elapsed seconds
+Timing for main: time 2000-01-24_13:32:00 on domain   1:    0.81600 elapsed seconds
+Timing for main: time 2000-01-24_13:33:00 on domain   1:    0.85800 elapsed seconds
+Timing for main: time 2000-01-24_13:34:00 on domain   1:    0.83900 elapsed seconds
+Timing for main: time 2000-01-24_13:35:00 on domain   1:    0.86900 elapsed seconds
+Timing for main: time 2000-01-24_13:36:00 on domain   1:    0.85800 elapsed seconds
+Timing for main: time 2000-01-24_13:37:00 on domain   1:    0.89700 elapsed seconds
+Timing for main: time 2000-01-24_13:38:00 on domain   1:    0.86300 elapsed seconds
+Timing for main: time 2000-01-24_13:39:00 on domain   1:    0.90800 elapsed seconds
+Timing for main: time 2000-01-24_13:40:00 on domain   1:    0.87000 elapsed seconds
+Timing for main: time 2000-01-24_13:41:00 on domain   1:    0.84200 elapsed seconds
+Timing for main: time 2000-01-24_13:42:00 on domain   1:    0.87800 elapsed seconds
+Timing for main: time 2000-01-24_13:43:00 on domain   1:    0.86300 elapsed seconds
+Timing for main: time 2000-01-24_13:44:00 on domain   1:    0.88100 elapsed seconds
+Timing for main: time 2000-01-24_13:45:00 on domain   1:    0.88700 elapsed seconds
+Timing for main: time 2000-01-24_13:46:00 on domain   1:    0.86400 elapsed seconds
+Timing for main: time 2000-01-24_13:47:00 on domain   1:    0.86900 elapsed seconds
+Timing for main: time 2000-01-24_13:48:00 on domain   1:    0.88900 elapsed seconds
+Timing for main: time 2000-01-24_13:49:00 on domain   1:    0.85200 elapsed seconds
+Timing for main: time 2000-01-24_13:50:00 on domain   1:    0.92300 elapsed seconds
+Timing for main: time 2000-01-24_13:51:00 on domain   1:    0.85300 elapsed seconds
+Timing for main: time 2000-01-24_13:52:00 on domain   1:    0.89400 elapsed seconds
+Timing for main: time 2000-01-24_13:53:00 on domain   1:    0.84300 elapsed seconds
+Timing for main: time 2000-01-24_13:54:00 on domain   1:    0.90200 elapsed seconds
+Timing for main: time 2000-01-24_13:55:00 on domain   1:    0.86300 elapsed seconds
+Timing for main: time 2000-01-24_13:56:00 on domain   1:    0.85500 elapsed seconds
+Timing for main: time 2000-01-24_13:57:00 on domain   1:    0.87000 elapsed seconds
+Timing for main: time 2000-01-24_13:58:00 on domain   1:    0.84400 elapsed seconds
+Timing for main: time 2000-01-24_13:59:00 on domain   1:    0.89300 elapsed seconds
+Timing for main: time 2000-01-24_14:00:00 on domain   1:    0.90100 elapsed seconds
+Timing for Writing wrfout_d01_2000-01-24_14_00_00 for domain        1:    0.15300 elapsed seconds
+Timing for main: time 2000-01-24_14:01:00 on domain   1:    1.34400 elapsed seconds
+Timing for main: time 2000-01-24_14:02:00 on domain   1:    0.86200 elapsed seconds
+Timing for main: time 2000-01-24_14:03:00 on domain   1:    0.82500 elapsed seconds
+Timing for main: time 2000-01-24_14:04:00 on domain   1:    0.85700 elapsed seconds
+Timing for main: time 2000-01-24_14:05:00 on domain   1:    0.87500 elapsed seconds
+Timing for main: time 2000-01-24_14:06:00 on domain   1:    0.84000 elapsed seconds
+Timing for main: time 2000-01-24_14:07:00 on domain   1:    0.87900 elapsed seconds
+Timing for main: time 2000-01-24_14:08:00 on domain   1:    0.84700 elapsed seconds
+Timing for main: time 2000-01-24_14:09:00 on domain   1:    0.88500 elapsed seconds
+Timing for main: time 2000-01-24_14:10:00 on domain   1:    0.89700 elapsed seconds
+Timing for main: time 2000-01-24_14:11:00 on domain   1:    0.83200 elapsed seconds
+Timing for main: time 2000-01-24_14:12:00 on domain   1:    0.86600 elapsed seconds
+Timing for main: time 2000-01-24_14:13:00 on domain   1:    0.89100 elapsed seconds
+Timing for main: time 2000-01-24_14:14:00 on domain   1:    0.83600 elapsed seconds
+Timing for main: time 2000-01-24_14:15:00 on domain   1:    0.93200 elapsed seconds
+Timing for main: time 2000-01-24_14:16:00 on domain   1:    0.84100 elapsed seconds
+Timing for main: time 2000-01-24_14:17:00 on domain   1:    0.84600 elapsed seconds
+Timing for main: time 2000-01-24_14:18:00 on domain   1:    0.88300 elapsed seconds
+Timing for main: time 2000-01-24_14:19:00 on domain   1:    0.86100 elapsed seconds
+Timing for main: time 2000-01-24_14:20:00 on domain   1:    0.92500 elapsed seconds
+Timing for main: time 2000-01-24_14:21:00 on domain   1:    0.86700 elapsed seconds
+Timing for main: time 2000-01-24_14:22:00 on domain   1:    0.91300 elapsed seconds
+Timing for main: time 2000-01-24_14:23:00 on domain   1:    0.86200 elapsed seconds
+Timing for main: time 2000-01-24_14:24:00 on domain   1:    0.89800 elapsed seconds
+Timing for main: time 2000-01-24_14:25:00 on domain   1:    0.88800 elapsed seconds
+Timing for main: time 2000-01-24_14:26:00 on domain   1:    0.89200 elapsed seconds
+Timing for main: time 2000-01-24_14:27:00 on domain   1:    0.83200 elapsed seconds
+Timing for main: time 2000-01-24_14:28:00 on domain   1:    0.91700 elapsed seconds
+Timing for main: time 2000-01-24_14:29:00 on domain   1:    0.87100 elapsed seconds
+Timing for main: time 2000-01-24_14:30:00 on domain   1:    0.93100 elapsed seconds
+Timing for main: time 2000-01-24_14:31:00 on domain   1:    1.18100 elapsed seconds
+Timing for main: time 2000-01-24_14:32:00 on domain   1:    0.90700 elapsed seconds
+Timing for main: time 2000-01-24_14:33:00 on domain   1:    0.85500 elapsed seconds
+Timing for main: time 2000-01-24_14:34:00 on domain   1:    0.91600 elapsed seconds
+Timing for main: time 2000-01-24_14:35:00 on domain   1:    0.90200 elapsed seconds
+Timing for main: time 2000-01-24_14:36:00 on domain   1:    0.88100 elapsed seconds
+Timing for main: time 2000-01-24_14:37:00 on domain   1:    0.87400 elapsed seconds
+Timing for main: time 2000-01-24_14:38:00 on domain   1:    0.87100 elapsed seconds
+Timing for main: time 2000-01-24_14:39:00 on domain   1:    0.87000 elapsed seconds
+Timing for main: time 2000-01-24_14:40:00 on domain   1:    0.91400 elapsed seconds
+Timing for main: time 2000-01-24_14:41:00 on domain   1:    0.86500 elapsed seconds
+Timing for main: time 2000-01-24_14:42:00 on domain   1:    0.90700 elapsed seconds
+Timing for main: time 2000-01-24_14:43:00 on domain   1:    0.88200 elapsed seconds
+Timing for main: time 2000-01-24_14:44:00 on domain   1:    0.88400 elapsed seconds
+Timing for main: time 2000-01-24_14:45:00 on domain   1:    0.91200 elapsed seconds
+Timing for main: time 2000-01-24_14:46:00 on domain   1:    0.86600 elapsed seconds
+Timing for main: time 2000-01-24_14:47:00 on domain   1:    0.87900 elapsed seconds
+Timing for main: time 2000-01-24_14:48:00 on domain   1:    0.85400 elapsed seconds
+Timing for main: time 2000-01-24_14:49:00 on domain   1:    0.87600 elapsed seconds
+Timing for main: time 2000-01-24_14:50:00 on domain   1:    0.93000 elapsed seconds
+Timing for main: time 2000-01-24_14:51:00 on domain   1:    0.86900 elapsed seconds
+Timing for main: time 2000-01-24_14:52:00 on domain   1:    0.88100 elapsed seconds
+Timing for main: time 2000-01-24_14:53:00 on domain   1:    0.86400 elapsed seconds
+Timing for main: time 2000-01-24_14:54:00 on domain   1:    0.90900 elapsed seconds
+Timing for main: time 2000-01-24_14:55:00 on domain   1:    0.92900 elapsed seconds
+Timing for main: time 2000-01-24_14:56:00 on domain   1:    0.90100 elapsed seconds
+Timing for main: time 2000-01-24_14:57:00 on domain   1:    0.89500 elapsed seconds
+Timing for main: time 2000-01-24_14:58:00 on domain   1:    0.85900 elapsed seconds
+Timing for main: time 2000-01-24_14:59:00 on domain   1:    0.88500 elapsed seconds
+Timing for main: time 2000-01-24_15:00:00 on domain   1:    0.92500 elapsed seconds
+wrf: SUCCESS COMPLETE WRF
+
+real	3m15.083s
+user	2m1.270s
+sys	1m13.244s
